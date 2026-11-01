@@ -11,7 +11,7 @@ import android.widget.ProgressBar
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import dev.powerx.browser.engine.BrowserEngine
-import dev.powerx.browser.engine.gecko.GeckoBrowserEngine
+import dev.powerx.browser.engine.gecko.EngineProvider
 import dev.powerx.browser.settings.AppSettings
 import dev.powerx.browser.storage.BrowsingHistory
 import java.net.URLEncoder
@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var history: BrowsingHistory
     private lateinit var addressBar: EditText
     private lateinit var progress: ProgressBar
+    private lateinit var host: FrameLayout
     private var lastLocation: String? = null
     private var lastTitle: String? = null
 
@@ -34,12 +35,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         addressBar = findViewById(R.id.addressBar)
+        // Tapping the bar selects all text so typing replaces the current URL.
+        addressBar.setSelectAllOnFocus(true)
         progress = findViewById(R.id.progress)
-        val host = findViewById<FrameLayout>(R.id.engineHost)
+        host = findViewById(R.id.engineHost)
 
-        // Engine slot: swap GeckoBrowserEngine for a Chromium module later
-        // without touching anything below this line except construction.
-        engine = GeckoBrowserEngine(this)
+        // Shared process-wide engine; this Activity owns only its view.
+        engine = EngineProvider.require()
         engine.setListener(object : BrowserEngine.EngineListener {
             override fun onProgress(progress: Int) {
                 this@MainActivity.progress.visibility = if (progress in 1..99) View.VISIBLE else View.GONE
@@ -49,7 +51,11 @@ class MainActivity : AppCompatActivity() {
             override fun onLocation(url: String?) {
                 lastLocation = url
                 if (url != null) {
-                    addressBar.setText(url)
+                    // Never clobber text the user is actively editing; Go
+                    // clears focus first so committed navigations still update.
+                    if (!addressBar.hasFocus()) {
+                        addressBar.setText(url)
+                    }
                     history.record(url, lastTitle)
                 }
             }
@@ -91,6 +97,11 @@ class MainActivity : AppCompatActivity() {
     private fun navigate(input: String) {
         val trimmed = input.trim()
         if (trimmed.isEmpty()) return
+        // Commit the edit: drop focus (stops location updates being treated
+        // as edits) and hide the keyboard before loading.
+        addressBar.clearFocus()
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+        imm.hideSoftInputFromWindow(addressBar.windowToken, 0)
         engine.loadUrl(toUrl(trimmed))
     }
 
@@ -118,9 +129,17 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        // singleTask: external VIEW links land here instead of a new Activity.
+        intent.dataString?.let { navigate(it) }
+    }
+
     override fun onDestroy() {
+        // Release only Activity-owned state; the process-wide engine outlives us.
+        host.removeAllViews()
         engine.setListener(null)
-        engine.destroy()
         super.onDestroy()
     }
 }

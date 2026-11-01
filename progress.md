@@ -27,7 +27,18 @@
 - Environment verified: Java 21, SDK android-34 + build-tools 34.0.0,
   adb present, Gradle 8.7 in SDK, no python3 (use PowerShell).
 
-## 2026-11-01 — Phase 2: first successful build (DONE)
+## 2026-11-01 — Phase 3: on-device proof of concept (DONE)
+
+- Device: OnePlus CPH2239, Android 11, arm64, adb + user on-phone taps.
+- PASS: install, cold-start launch, HTTPS navigation (example.com),
+  back-navigation, Settings render, non-exported activity enforcement,
+  YouTube mobile load, uBO install/uninstall with permission dialog (E01/E03).
+- Fixed from device evidence: address-bar edit race, multi-runtime crash,
+  child-process engine init (all in `docs/TESTING.md`).
+- NOT TESTED (Phase 4): tabs, bookmarks/history/downloads UI, private mode,
+  theme switch, save flow, enable/disable, persistence check, video playback,
+  PiP, cert warnings, data clearing, unit tests.
+- Committed locally; never pushed (awaiting explicit authorization).
 
 - `assembleDebug` **BUILD SUCCESSFUL** (build-seventh.log, 36 tasks).
   Artifact: `app/build/outputs/apk/debug/app-debug.apk` (~531 MB, universal,

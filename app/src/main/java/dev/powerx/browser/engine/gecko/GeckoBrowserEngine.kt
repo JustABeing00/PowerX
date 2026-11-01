@@ -10,6 +10,7 @@ import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoView
 import org.mozilla.geckoview.WebExtension
+import org.mozilla.geckoview.WebExtensionController
 
 /**
  * GeckoView proof-of-concept engine (MPL-2.0 dependency, used unmodified).
@@ -137,4 +138,8 @@ class GeckoBrowserEngine(context: Context) : BrowserEngine {
 
     fun uninstallExtension(extension: WebExtension): GeckoResult<Void> =
         runtime.webExtensionController.uninstall(extension)
+
+    fun setPromptDelegate(delegate: WebExtensionController.PromptDelegate?) {
+        runtime.webExtensionController.setPromptDelegate(delegate)
+    }
 }

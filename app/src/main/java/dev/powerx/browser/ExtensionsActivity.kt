@@ -8,9 +8,11 @@ import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import dev.powerx.browser.engine.gecko.EngineProvider
 import dev.powerx.browser.engine.gecko.GeckoBrowserEngine
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.WebExtension
+import org.mozilla.geckoview.WebExtensionController
 
 /**
  * Honest extension manager for the Gecko proof-of-concept engine:
@@ -32,10 +34,59 @@ class ExtensionsActivity : AppCompatActivity() {
         val urlInput = findViewById<EditText>(R.id.extensionUrl)
         val list = findViewById<ListView>(R.id.extensionList)
 
-        engine = GeckoBrowserEngine(this)
+        engine = EngineProvider.require()
         engine?.let {
             status.text = it.extensionCapabilities.userFacingLabel
         }
+        // Permission gate (E03): every install/update shows origin + permissions
+        // and completes only on explicit Allow. No prompt = install stalls.
+        engine?.setPromptDelegate(object : WebExtensionController.PromptDelegate {
+            override fun onInstallPromptRequest(
+                extension: WebExtension,
+                permissions: Array<String>,
+                origins: Array<String>,
+                dataCollectionPermissions: Array<String>
+            ): GeckoResult<WebExtension.PermissionPromptResponse> {
+                val result = GeckoResult<WebExtension.PermissionPromptResponse>()
+                runOnUiThread {
+                    val lines = buildList {
+                        add("Extension: ${extension.id}")
+                        if (permissions.isNotEmpty()) {
+                            add("Permissions:")
+                            permissions.forEach { add("• $it") }
+                        }
+                        if (origins.isNotEmpty()) {
+                            add("Site access:")
+                            origins.forEach { add("• $it") }
+                        }
+                        if (dataCollectionPermissions.isNotEmpty()) {
+                            add("Data collection:")
+                            dataCollectionPermissions.forEach { add("• $it") }
+                        }
+                    }
+                    AlertDialog.Builder(this@ExtensionsActivity)
+                        .setTitle("Install extension?")
+                        .setMessage(lines.joinToString("\n"))
+                        .setPositiveButton("Allow") { _, _ ->
+                            result.complete(
+                                WebExtension.PermissionPromptResponse(true, false, false)
+                            )
+                        }
+                        .setNegativeButton("Deny") { _, _ ->
+                            result.complete(
+                                WebExtension.PermissionPromptResponse(false, false, false)
+                            )
+                        }
+                        .setOnCancelListener {
+                            result.complete(
+                                WebExtension.PermissionPromptResponse(false, false, false)
+                            )
+                        }
+                        .show()
+                }
+                return result
+            }
+        })
 
         adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, mutableListOf())
         list.adapter = adapter
@@ -110,7 +161,7 @@ class ExtensionsActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        engine?.destroy()
+        // Shared engine outlives this screen; nothing to tear down.
         engine = null
         super.onDestroy()
     }
