@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PowerX</string>
+    <string name="address_hint">Search or enter address</string>
+    <string name="go">Go</string>
+    <string name="back">Back</string>
+    <string name="forward">Forward</string>
+    <string name="reload">Reload</string>
+    <string name="settings">Settings</string>
+    <string name="extensions">Extensions</string>
+    <string name="homepage">Home page</string>
+    <string name="search_engine">Search engine</string>
+    <string name="theme">Theme</string>
+    <string name="theme_system">System default</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="save">Save</string>
+    <string name="install">Install</string>
+    <string name="uninstall">Uninstall</string>
+    <string name="extension_url_hint">Extension update URL or AMO link</string>
+    <string name="extensions_firefox_note">This build runs Firefox extensions (AMO). Chrome Web Store extensions are not supported by this engine — see docs/ENGINE_COMPARISON.md.</string>
+    <string name="no_extensions">No extensions installed.</string>
+</resources>

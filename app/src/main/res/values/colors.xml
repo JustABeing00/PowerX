@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Original PowerX palette. Not derived from any reference browser. -->
+<resources>
+    <color name="powerx_primary">#3B4FD8</color>
+    <color name="powerx_primary_dark">#2A3AA3</color>
+    <color name="powerx_accent">#FFB020</color>
+    <color name="powerx_bg_light">#F7F8FC</color>
+    <color name="powerx_bg_dark">#12141C</color>
+    <color name="powerx_surface_dark">#1C1F2A</color>
+</resources>
