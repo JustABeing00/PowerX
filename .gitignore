@@ -5,3 +5,45 @@ local.properties
 .tools/
 *.log
 .DS_Store
+
+# IDE / toolchain (can contain local paths, run configs)
+.idea/
+*.iml
+.vscode/
+.kotlin/
+.cxx/
+externalNativeBuild/
+captures/
+.navigation/
+
+# Signing keys & certificates — never commit these
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.key
+*.pem
+*.p8
+*.bks
+*.truststore
+*.mobileprovision
+*.provisionprofile
+keystore.properties
+signing.properties
+secrets.properties
+
+# Firebase / Google services (contain API keys)
+google-services.json
+GoogleService-Info.plist
+firebase*.json
+
+# Env files / local secrets
+.env
+.env.*
+*.env
+
+# Build outputs
+*.apk
+*.aab
+*.ap_
+*.dex
