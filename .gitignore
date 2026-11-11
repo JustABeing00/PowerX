@@ -47,3 +47,6 @@ firebase*.json
 *.aab
 *.ap_
 *.dex
+
+# Local working notes (not for repo)
+progress.md
